@@ -80,3 +80,12 @@ EvaluateAUC <- function(dfEvaluate) {
   print(paste('Mean AUC:',mean(lsAUC)))
 }
 
+dfEvaluate <- cbind(as.data.frame(sapply(gisette_nzv, as.numeric)),
+                    cluster=g_labels$V1)
+EvaluateAUC(dfEvaluate) # we get 0.97, now using PCA we want to get as close as possible to this
+
+# Preparing data for PCA
+
+pmatrix <- scale(gisette_nzv)
+princ <- prcomp(pmatrix)
+
