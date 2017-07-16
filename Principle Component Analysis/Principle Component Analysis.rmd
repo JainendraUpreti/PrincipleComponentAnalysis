@@ -1,5 +1,5 @@
 ---
-title: "Principle Component Analysis"
+title: "Principle Component Analysis - Case Study"
 author: "Jainendra Upreti"
 date: "July 16, 2017"
 output: 
@@ -149,7 +149,6 @@ print(paste('Column count after cutoff:',ncol(gisette_nzv)))
 
 ```
 
-
 We can see that after removing all the columns that don't meet criteria, we were able to reduce the dimensionality by 361 columns, i.e., the columns dropped from 5000 to 4639
 
 After cleaning up we check how it is performing without PCA transformation. Since our data has high dimensionality we are using xgboost as the model to perform regression analysis. We are using k fold cross validation, where the value of k is taken to be 5
@@ -199,3 +198,67 @@ EvaluateAUC(dfEvaluate) # we get 0.97, now using PCA we want to get as close as 
 
 From the evaluation of the above model, we recived an AUC value of 0.97. Now in this case study, our goal is to reach as close as possible to this AUC value using PCA.
 
+Before running PCA, the first step is to standardize the data. As we consider weighted averages of the combined features, we do not want the effect to be considered based on the measure of a variable (the greater the measure, the more will be the impact on target variable). To overcome this problem, we standardize our variables.
+
+```{r warning=FALSE, message=FALSE}
+# Preparing data for PCA
+
+pmatrix <- scale(gisette_nzv)
+princ <- prcomp(pmatrix)
+
+#head(princ) # un-comment this command to see the result of PCA
+```
+
+```{r warning=FALSE, message=FALSE}
+
+nComp <- 1  
+dfComponents <- predict(princ, newdata=pmatrix)[,1:nComp]
+
+dfEvaluate <- cbind(as.data.frame(dfComponents),
+                    cluster=g_labels$V1)
+
+head(dfEvaluate)
+EvaluateAUC(dfEvaluate)
+
+nComp <- 2
+dfComponents <- predict(princ, newdata=pmatrix)[,1:nComp]
+
+dfEvaluate <- cbind(as.data.frame(dfComponents),
+                    cluster=g_labels$V1)
+
+head(dfEvaluate)
+EvaluateAUC(dfEvaluate)
+
+nComp <- 5
+dfComponents <- predict(princ, newdata=pmatrix)[,1:nComp]
+
+dfEvaluate <- cbind(as.data.frame(dfComponents),
+                    cluster=g_labels$V1)
+
+head(dfEvaluate)
+EvaluateAUC(dfEvaluate)
+
+nComp <- 11
+dfComponents <- predict(princ, newdata=pmatrix)[,1:nComp]
+
+dfEvaluate <- cbind(as.data.frame(dfComponents),
+                    cluster=g_labels$V1)
+
+head(dfEvaluate)
+EvaluateAUC(dfEvaluate)
+
+nComp <- 10
+dfComponents <- predict(princ, newdata=pmatrix)[,1:nComp]
+
+dfEvaluate <- cbind(as.data.frame(dfComponents),
+                    cluster=g_labels$V1)
+
+head(dfEvaluate)
+EvaluateAUC(dfEvaluate)
+
+```
+
+The above code checks the AUC components as we increase the Princinple components to predict the target variable.
+It can be observed that after feature extraction, even with one column we are able to achieve an AUC of 0.72 and it increases as we add more principle components. The optimum value here is 10 for which the AUC is 0.963. When we take 11 components the AUC starts to decrease.
+
+From this case study, it is very clear how Princinple Component Analysis or regression helped us reduce the dimensionality. From 5000 variables that were being used to predict the target variable, we were able to extract 10 features that can explain the randomness in the target variable to almost the same degree.
