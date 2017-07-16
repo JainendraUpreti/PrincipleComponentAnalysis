@@ -89,3 +89,43 @@ EvaluateAUC(dfEvaluate) # we get 0.97, now using PCA we want to get as close as 
 pmatrix <- scale(gisette_nzv)
 princ <- prcomp(pmatrix)
 
+head(princ)
+
+nComp <- 1  
+dfComponents <- predict(princ, newdata=pmatrix)[,1:nComp]
+
+dfEvaluate <- cbind(as.data.frame(dfComponents),
+                    cluster=g_labels$V1)
+
+EvaluateAUC(dfEvaluate)
+
+nComp <- 2
+dfComponents <- predict(princ, newdata=pmatrix)[,1:nComp]
+
+dfEvaluate <- cbind(as.data.frame(dfComponents),
+                    cluster=g_labels$V1)
+
+EvaluateAUC(dfEvaluate)
+
+nComp <- 5
+dfComponents <- predict(princ, newdata=pmatrix)[,1:nComp]
+
+dfEvaluate <- cbind(as.data.frame(dfComponents),
+                    cluster=g_labels$V1)
+
+EvaluateAUC(dfEvaluate)
+nComp <- 11
+dfComponents <- predict(princ, newdata=pmatrix)[,1:nComp]
+
+dfEvaluate <- cbind(as.data.frame(dfComponents),
+                    cluster=g_labels$V1)
+
+EvaluateAUC(dfEvaluate)
+
+nComp <- 10
+dfComponents <- predict(princ, newdata=pmatrix)[,1:nComp]
+
+dfEvaluate <- cbind(as.data.frame(dfComponents),
+                    cluster=g_labels$V1)
+
+EvaluateAUC(dfEvaluate)

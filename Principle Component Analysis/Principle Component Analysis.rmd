@@ -2,8 +2,48 @@
 title: "Principle Component Analysis"
 author: "Jainendra Upreti"
 date: "July 16, 2017"
-output: html_document
+toc:true
+output: 
+  html_document:
+    df_print:paged
 ---
+
+```{r}
+library(tibble)
+library(tidyr)
+library(ggplot2)
+library(purrr)
+library(dplyr)
+library(knitr)
+```
+
+# Dimensionality Reduction Using Principle Component Analysis (PCA)
+
+## Dimensionality and related issues
+
+Dimensionality of the data is defined by the number of independent, predictor, or explanatory variables in the dataset. Having said that, it is often observed that dimensionality effects the computational performance more than the number of observations. Not only it increases the complexity of the data set, but it also limits the ability to explore and model relationships between variables.
+
+## Cause of dimensionality
+
+Two factors can contribute towards high dimenstionaly. First, Having categorical variables with various levels and second, redundant variables in a dataset. When we include categorical variables in modeling we use dummy variables, and more the number of levels in a categorical variable, the more dummy variables we create, which inturn increases the dimensionality. This can be solved by an approach known as "Collapsing the levels", which will be disucssed in a separate document. This document will focus on dealing with redundnant variables and multicollinearity.
+
+Multicollinearity (collinearity) can be defined as a phenomenon in which two or more variables in a multivariate regression are highly correlated, that means, one variable can be linearly predicted from the others with a substantial degree of accuracy. Collinear variables contain the same information about the dependent variable. If nominally "different" measures actually quantify the same phenomenon, then they are reduntant variables.
+
+Presence of redundant variables and multicollinearity among variables can effect the analyses of variables in many ways, some of which are shared below:
+
+* Destabilizing the parameter estimates
+* Confounding model interpretions
+* Increasing risk of overfitting
+* Increasing computation time
+
+Small changes in input data (like removing or adding a single variable) leads to a large change in the model, even resulting in sign changes of parameters. Also, the presence of multicollinearity increases the variance or standard error of the coefficient estimates making it sensitive to minor changes, thus resulting in difficulty in interpretation.
+
+When we talk about best regression model for a dataset, it means that the model considers predictor variables where each predictor correlates with the target/dependent variable but correlate almost minimally with each other. Such a model is called low-noise model and is stastically robust and can be used for scoring Now, if the correlation among the variables itself is high and we achieve high predictive power on the training dataset, it is possible that we may not achieve the same on the test dataset, unless the same collinear relation exists between the variables in test dataset, in which case multicollinearity won't effect the predictive ability of your model.
+
+## Detecting Multicollinearity
+
+
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
