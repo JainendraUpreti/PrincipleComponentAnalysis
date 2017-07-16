@@ -121,3 +121,40 @@ On running a check on dimension for our data, we can observe that this data has 
 
 As discussed above, PCA creates new features using the many features present in the dataset. A problem that may arise with PCA is that if the variables have zero variance or very little variance, i.e., almost the same values throughtout all observations, the PCA collapses. Also, thinking about statistical relevance of such a data, it can be said that a variable of almost zero variance won't contribute much to the model.
 
+```{r warning=FALSE, message=FALSE}
+nzv <- nearZeroVar(gisetteRaw, saveMetrics = TRUE) #SaveMetrics options gives us the amount of %age
+                                                   # of zero variance of each feature
+print(paste('Range:', range(nzv$percentUnique)))
+print(paste('Column count before cutoff:',ncol(gisetteRaw)))
+dim(nzv)
+
+head(nzv) # in the output PercentUnique tells us how much percent uniqueness is there in a variable
+          # Does it has zero variance and nzv tells us if it is close to near zero variance
+
+# we get a range from 0 to 8.6 for Percent unique, based on it we choose a cutoff of 0.1
+
+```
+
+So our first step is to check the variances of observations under each variable and based on the range received from the above select a value using which, we will eliminate the near zero variance variables. From the output, it can be observed that the values for variances lies between 0 and 8.6.
+
+For our analysis, we choose the cutoff as 0.1 and use it to clean our data as shown in the code below:
+
+```{r}
+dim(nzv[nzv$percentUnique > 0.1,]) # from 5000 to 4639; 361 columns eliminated
+gisette_nzv <- gisetteRaw[c(rownames(nzv[nzv$percentUnique > 0.1,]))] 
+#rownames() functions passes the name of columns to be used as rownames for our original dataset
+print(paste('Column count after cutoff:',ncol(gisette_nzv)))
+
+```
+
+
+We can see that after removing all the columns that don't meet criteria, we were able to reduce the dimensionality by 361 columns, i.e., the columns dropped from 5000 to 4639
+
+After cleaning up we check how it is performing without PCA transformation. Since our data has high dimensionality we are using xgboost as the model to perform regression analysis. We are using k fold cross validation, where the value of k is taken to be 5
+
+```{r}
+
+```
+
+
+# function for xgboost
