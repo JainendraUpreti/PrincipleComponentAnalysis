@@ -2,22 +2,33 @@
 title: "Principle Component Analysis"
 author: "Jainendra Upreti"
 date: "July 16, 2017"
-toc:true
 output: 
   html_document:
-    df_print:paged
+    df_print: paged
+    toc: true
 ---
 
-```{r}
+```{r echo=FALSE, warning=FALSE, results='hide', message=FALSE}
 library(tibble)
 library(tidyr)
 library(ggplot2)
-library(purrr)
+#library(purrr)
 library(dplyr)
 library(knitr)
+library(RCurl) # To download data from URL
+library(caret) # nearZeroVar function
+library(xgboost)
 ```
 
-# Dimensionality Reduction Using Principle Component Analysis (PCA)
+## Introduction
+
+This document deals with:
+
+1) the problems faced with dimensionality.
+2) The ways in which we can deal with redundancy and multicollinearity introduced in our dataset due to high dimensionality.
+3) Detecting multicollinearity.
+4) Remedies for multicollinearity and dimension reduction using Principle Component Analysis(PCA).
+5) PCA Implemtation example with R-codes
 
 ## Dimensionality and related issues
 
@@ -42,29 +53,71 @@ When we talk about best regression model for a dataset, it means that the model 
 
 ## Detecting Multicollinearity
 
+After understanding how how multicollinearity affects our analysis and predictive ability of the model, it is very important to learn how to detect the presence of multicollinearity in our data.
 
+Following methods can be used to detect multicollinearity:
 
+* The analysis exhibits sign of multicollinearity - such as, coefficient estimates varying from model to model
+* The R-square value is large but none of the beta weights is statistically significant, i.e., F-test for overall model is significant but the t-tests for individual coefficient estimates are not.
+* Correlation among pairs of variables are large.
+* Variance Inflation Factor.
+
+### Variable Inflation Factor (VIF)
+
+One of the points that was mentioned in detecting multicollinearity was, that the correlation between pairs of variables are large, but sometimes looking only at the correlation among pairs of predictors can be a limiting factor.
+
+It is possible that pairwise correlation are small and yet there exists a linear dependece between three or more variables. For example, the relation between X1, X2, and X3 is defined by a linear equation, say: X3 = 3X1 + 4X2 + Error. For such cases, we use Variance Inflation Factor.
+
+VIF is a measure of how much the variance of the estimated regression coefficient, can be inflated by the existence of correlations among the predictor variables in the model. If the value of VIF > 10, it shows that there is some serious correlation between variables.
+
+We won't be dwelve into mathematical derivations for VIF. The formula for VIF is given as
+
+                    VIF = 1/(1-R-square)
+
+VIF for a predictor variable "k" is obtained by calculating R squared value by regressing that k-th variable on the remaining predictor variable.
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+## Remedies for multicollinearity and high dimensionality
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+* Check if one of the variables is a duplicate
+* Drop a redundant variable
+* Increasing the sample size by collecting more data
+* Mean centering the predictor variables
+* Standardization of predictor variable - if mean centering has no affect
+* Principle Component Analysis, Ridge regression, partial least squares regression
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+In this document, we will discuss Principle Component Analysis with the help of an example.
 
-```{r cars}
-summary(cars)
+### Principle Component Analysis (PCA)
+
+PCA is also called as feature reduction or feature extraction. PCA creates new features using the many features already present in the dataset. In PCA, instead of regressing the dependent variable on the explanatory variables directly, the principal components of the explanatory variables are used as regressors. One typically uses only a subset of all the principal components for regression, thus making PCR some kind of a regularized procedure. Often the principal components with higher variances are selected as regressors.
+
+One major use of PCA lies in overcoming the multicollinearity problem. PCA can aptly deal with such situations by excluding some of the low-variance principal components in the regression step. In addition, by usually regressing on only a subset of all the principal components, PCR can result in dimension reduction through substantially lowering the effective number of parameters characterizing the underlying model.
+
+### Learning PCA through Example
+
+To understaind how PCA works, the first thing we need a dataset with high dimensionality. This data can be downloaded using the code below:
+
+```{r warning=FALSE, message=FALSE}
+# donwloading the file1
+urlfile <- 'https://archive.ics.uci.edu/ml/machine-learning-databases/gisette/GISETTE/gisette_train.data'
+x <- getURL(urlfile, ssl.verifypeer = FALSE)
+gisetteRaw <- read.table(textConnection(x), sep = '', header = FALSE, stringsAsFactors = FALSE)
+
+# download file2
+urlfile <- "https://archive.ics.uci.edu/ml/machine-learning-databases/gisette/GISETTE/gisette_train.labels"
+x <- getURL(urlfile, ssl.verifypeer = FALSE)
+g_labels <- read.table(textConnection(x), sep = '', header = FALSE, stringsAsFactors = FALSE)
+
+print(dim(gisetteRaw))
+head(gisetteRaw)
+
 ```
 
-## Including Plots
+On running a check on dimension for our data, we can observe that this data has 6000 observations distributed over 5000 predictor variables.
 
-You can also embed plots, for example:
+As discussed above, PCA creates new features using the many features present in the dataset. A problem that may arise with PCA is that if the variables have zero variance or very little variance, i.e., almost the same values throughtout all observations, the PCA collapses. Also, thinking about statistical relevance of such a data, it can be said that a variable of almost zero variance won't contribute much to the model.
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
