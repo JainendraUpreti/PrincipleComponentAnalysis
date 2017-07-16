@@ -5,6 +5,7 @@ library(ggplot2)
 library(RCurl) # To download data from URL
 library(caret)
 library(tibble)
+library(xgboost)
 install.packages("caret")
 urlfile <- 'https://archive.ics.uci.edu/ml/machine-learning-databases/gisette/GISETTE/gisette_train.data'
 x <- getURL(urlfile, ssl.verifypeer = FALSE)
@@ -78,3 +79,4 @@ EvaluateAUC <- function(dfEvaluate) {
   print(paste('Mean Error:',mean(lsErr)))
   print(paste('Mean AUC:',mean(lsAUC)))
 }
+
